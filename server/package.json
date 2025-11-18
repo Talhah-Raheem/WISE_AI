@@ -1,0 +1,16 @@
+{
+  "name": "wise-ai-backend",
+  "version": "1.0.0",
+  "description": "Secure proxy for WISE Reflect extension",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "node --test"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "better-sqlite3": "^9.4.3"
+  }
+}

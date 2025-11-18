@@ -1,1 +1,6 @@
 config.js
+server/.env
+server/tokens.json
+server/logs/*.log
+server/data/*.sqlite
+server/node_modules/
