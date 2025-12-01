@@ -2,6 +2,6 @@ config.js
 server/.env
 server/tokens.json
 server/logs/*.log
-server/data/*.sqlite
+server/data/*.sqlite*
 server/node_modules/
 context.txt
