@@ -86,7 +86,7 @@ let currentStep = 0;
 let isSummaryView = false;
 const HISTORY_KEY = "reflectionHistory";
 const MIN_RESPONSE_LENGTH = 10;
-const MAX_RESPONSE_LENGTH = 2000;
+const MAX_RESPONSE_LENGTH = 1000;
 
 window.onload = () => {
   // Ensure we only load once
@@ -134,7 +134,6 @@ function loadStep() {
 
   const label = document.getElementById("question-label");
   const textarea = document.getElementById("reflection");
-  const progressText = document.getElementById("progressText");
   const progressBarFill = document.getElementById("progressBarFill");
   const progressPct = document.getElementById("progressPct");
   const backBtn = document.getElementById("backBtn");
@@ -157,7 +156,6 @@ function loadStep() {
   nextBtn.textContent =
     currentStep === questions.length - 1 ? "Summary" : "Next";
   const pct = Math.round(((currentStep + 1) / questions.length) * 100);
-  progressText.textContent = `Step ${currentStep + 1} of ${questions.length}`;
   progressBarFill.style.width = `${pct}%`;
   progressPct.textContent = `${pct}%`;
   setSaveStatus("", { hide: true }); // hide status
@@ -214,7 +212,7 @@ function handleSave() {
   }
 
   chrome.storage.local.set({ [`q${currentStep + 1}`]: answer }, () => {
-    setSaveStatus("Saved ✅");
+    setSaveStatus("Saved.");
   });
 }
 
@@ -227,7 +225,7 @@ function handleNext() {
     return;
   }
   chrome.storage.local.set({ [`q${currentStep + 1}`]: answer }, () => {
-    setSaveStatus("Saved ✅");
+    setSaveStatus("Saved.");
     if (currentStep < questions.length - 1) {
       currentStep++;
       loadStep();
@@ -302,14 +300,12 @@ async function handleAI() {
 
 function showSummary() {
   isSummaryView = true;
-  const progressText = document.getElementById("progressText");
   const progressBarFill = document.getElementById("progressBarFill");
   const progressPct = document.getElementById("progressPct");
   const questionView = document.getElementById("questionView");
   const summaryView = document.getElementById("summaryView");
   questionView.classList.add("hidden");
   summaryView.classList.remove("hidden");
-  progressText.textContent = "Summary";
   progressBarFill.style.width = "100%";
   progressPct.textContent = "100%";
   populateSummary();
@@ -456,6 +452,6 @@ function handleClearAll() {
       "AI feedback will appear here...";
     renderHistoryList();
     toggleHistory(false);
-    setSaveStatus("Cleared. Start fresh ✅");
+    setSaveStatus("Cleared. Start fresh.");
   });
 }
