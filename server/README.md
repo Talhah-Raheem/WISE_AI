@@ -20,7 +20,7 @@ A lightweight Node.js service that proxies the browser extension's reflection re
    Fill in:
    - `OPENAI_API_KEY`: real key that never leaves the server.
    - `TOKENS_FILE`: location of your `tokens.json` (defaults to `./tokens.json`).
-   - `SQLITE_DB_PATH`, `CORS_ORIGIN`, and rate-limit overrides as needed.
+   - `SQLITE_DB_PATH`, `CORS_ORIGIN`, rate-limit overrides, and validation bounds (`MAX_RESPONSE_LENGTH`, `MIN_RESPONSE_LENGTH`, `MAX_TOTAL_RESPONSE_CHARS`, `MAX_REFLECTIONS`) as needed.
 
 2. Create `tokens.json` from the example and add one entry per school/device:
    ```json
@@ -85,3 +85,10 @@ Errors follow `{ "error": "message" }` with HTTP codes `400` (validation), `401`
 ## Extension Integration
 - `config.js` now exposes `BACKEND_API_URL` and `EXTENSION_CLIENT_TOKEN`. Assign each deployment a token from `tokens.json`.
 - `popup.js` submits the student's saved reflections to this backend instead of calling OpenAI directly, so the API key never ships with the extension bundle.
+
+## Configuration notes
+- Validation limits are configurable:
+  - `MAX_RESPONSE_LENGTH`, `MIN_RESPONSE_LENGTH`: per-answer length bounds.
+  - `MAX_TOTAL_RESPONSE_CHARS`: cap on combined answer length per request.
+  - `MAX_REFLECTIONS`: maximum number of answers per request.
+- Other knobs: rate limits (`RATE_LIMIT_WINDOW_MS`, `RATE_LIMIT_MAX_REQUESTS`) and CORS origin (`CORS_ORIGIN`).

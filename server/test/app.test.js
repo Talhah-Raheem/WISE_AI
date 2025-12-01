@@ -128,3 +128,60 @@ test('returns AI feedback and logs usage', async () => {
   assert.equal(logs[0].metadata.schoolId, 'school-1');
   assert.equal(logs[0].metadata.questionSetId, 'demo');
 });
+
+test('enforces maximum reflections count', async () => {
+  const handler = buildHandler({
+    config: { maxReflections: 1 }
+  });
+  const req = createRequest({
+    headers: { Authorization: 'Bearer test-token' },
+    body: JSON.stringify({
+      reflections: [
+        { question: 'Q1', response: 'Answer one' },
+        { question: 'Q2', response: 'Answer two' }
+      ]
+    })
+  });
+  const res = createResponse();
+
+  await handler(req, res);
+  assert.equal(res.statusCode, 400);
+  assert.match(res.body, /Maximum allowed is 1/);
+});
+
+test('rejects responses shorter than configured minimum', async () => {
+  const handler = buildHandler({
+    config: { minResponseLength: 5 }
+  });
+  const req = createRequest({
+    headers: { Authorization: 'Bearer test-token' },
+    body: JSON.stringify({
+      reflections: [{ question: 'Q1', response: 'hey' }]
+    })
+  });
+  const res = createResponse();
+
+  await handler(req, res);
+  assert.equal(res.statusCode, 400);
+  assert.match(res.body, /at least 5 characters/);
+});
+
+test('rejects when total response length exceeds limit', async () => {
+  const handler = buildHandler({
+    config: { maxTotalResponseChars: 10, minResponseLength: 1 }
+  });
+  const req = createRequest({
+    headers: { Authorization: 'Bearer test-token' },
+    body: JSON.stringify({
+      reflections: [
+        { question: 'Q1', response: '123456' },
+        { question: 'Q2', response: '12345' }
+      ]
+    })
+  });
+  const res = createResponse();
+
+  await handler(req, res);
+  assert.equal(res.statusCode, 400);
+  assert.match(res.body, /maximum total length of 10/);
+});

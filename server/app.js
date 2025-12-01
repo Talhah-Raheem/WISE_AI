@@ -29,6 +29,9 @@ function createRequestHandler({
     allowedOrigin: '*',
     maxBodySize: 1_000_000,
     maxResponseLength: 2000,
+    minResponseLength: 10,
+    maxReflections: 10,
+    maxTotalResponseChars: 4000,
     rateLimitWindowMs: 60_000,
     rateLimitMaxRequests: 45,
     systemPrompt:
@@ -110,10 +113,26 @@ function createRequestHandler({
       );
     }
 
+    if (reflections.length > cfg.maxReflections) {
+      return sendJson(
+        res,
+        400,
+        {
+          error: `Too many reflections. Maximum allowed is ${cfg.maxReflections}.`
+        },
+        cfg.allowedOrigin
+      );
+    }
+
     let normalized;
     try {
       normalized = reflections.map((entry, index) =>
-        normalizeReflection(entry, index, cfg.maxResponseLength)
+        normalizeReflection({
+          entry,
+          index,
+          minLength: cfg.minResponseLength,
+          maxLength: cfg.maxResponseLength
+        })
       );
     } catch (error) {
       return sendJson(
@@ -128,6 +147,17 @@ function createRequestHandler({
       (sum, entry) => sum + entry.response.length,
       0
     );
+
+    if (totalChars > cfg.maxTotalResponseChars) {
+      return sendJson(
+        res,
+        400,
+        {
+          error: `Responses exceed the maximum total length of ${cfg.maxTotalResponseChars} characters.`
+        },
+        cfg.allowedOrigin
+      );
+    }
 
     const systemPrompt = metadata.systemPrompt || cfg.systemPrompt;
     const userContent = buildUserContent(normalized);
@@ -198,7 +228,7 @@ function createRequestHandler({
   }
 }
 
-function normalizeReflection(entry, index, maxLength) {
+function normalizeReflection({ entry, index, minLength, maxLength }) {
   const question =
     typeof entry?.question === 'string'
       ? entry.question.trim()
@@ -208,6 +238,13 @@ function normalizeReflection(entry, index, maxLength) {
 
   if (!response) {
     throw new HttpError(400, `Reflection ${index + 1} is empty.`);
+  }
+
+  if (response.length < minLength) {
+    throw new HttpError(
+      400,
+      `Reflection ${index + 1} must be at least ${minLength} characters.`
+    );
   }
 
   if (response.length > maxLength) {

@@ -72,6 +72,11 @@ const server = createServer({
     allowedOrigin,
     systemPrompt: process.env.SYSTEM_PROMPT,
     maxResponseLength: Number(process.env.MAX_RESPONSE_LENGTH || 2000),
+    minResponseLength: Number(process.env.MIN_RESPONSE_LENGTH || 10),
+    maxTotalResponseChars: Number(
+      process.env.MAX_TOTAL_RESPONSE_CHARS || 4000
+    ),
+    maxReflections: Number(process.env.MAX_REFLECTIONS || 10),
     rateLimitWindowMs: Number(
       process.env.RATE_LIMIT_WINDOW_MS || 60_000
     ),

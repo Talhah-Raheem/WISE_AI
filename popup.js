@@ -85,6 +85,8 @@ const questions = [
 let currentStep = 0;
 let isSummaryView = false;
 const HISTORY_KEY = "reflectionHistory";
+const MIN_RESPONSE_LENGTH = 10;
+const MAX_RESPONSE_LENGTH = 2000;
 
 window.onload = () => {
   // Ensure we only load once
@@ -117,6 +119,9 @@ window.onload = () => {
     document
       .getElementById("closeHistoryBtn")
       .addEventListener("click", () => toggleHistory(false));
+    document
+      .getElementById("reflection")
+      .addEventListener("input", handleInputChange);
     renderHistoryList();
   }
 };
@@ -143,6 +148,8 @@ function loadStep() {
     if (result[`q${currentStep + 1}`]) {
       textarea.value = result[`q${currentStep + 1}`];
     }
+    // Update count after load
+    updateCharCounter();
   });
 
   // Handle button visibility
@@ -157,12 +164,52 @@ function loadStep() {
 }
 
 
-function handleSave() {
-  const textarea = document.getElementById("reflection");
-  const answer = textarea.value.trim();
+function handleInputChange() {
+  updateCharCounter();
+}
 
-  if (!answer) {
-    setSaveStatus("Please add text before saving.", { isError: true });
+function getTrimmedResponse() {
+  const textarea = document.getElementById("reflection");
+  return textarea.value.trim();
+}
+
+function updateCharCounter() {
+  const counter = document.getElementById("charCounter");
+  const response = getTrimmedResponse();
+  const length = response.length;
+  const withinBounds =
+    length === 0 ||
+    (length >= MIN_RESPONSE_LENGTH && length <= MAX_RESPONSE_LENGTH);
+  counter.textContent = `${length} / ${MAX_RESPONSE_LENGTH}`;
+  counter.classList.toggle("error", !withinBounds && length > 0);
+}
+
+function validateResponse() {
+  const response = getTrimmedResponse();
+  if (!response) {
+    return { valid: false, message: "Please add text before saving." };
+  }
+  if (response.length < MIN_RESPONSE_LENGTH) {
+    return {
+      valid: false,
+      message: `Please write at least ${MIN_RESPONSE_LENGTH} characters.`
+    };
+  }
+  if (response.length > MAX_RESPONSE_LENGTH) {
+    return {
+      valid: false,
+      message: `Please stay under ${MAX_RESPONSE_LENGTH} characters.`
+    };
+  }
+  return { valid: true };
+}
+
+function handleSave() {
+  const answer = getTrimmedResponse();
+  const validation = validateResponse();
+  if (!validation.valid) {
+    setSaveStatus(validation.message, { isError: true });
+    updateCharCounter();
     return;
   }
 
@@ -172,8 +219,13 @@ function handleSave() {
 }
 
 function handleNext() {
-  const textarea = document.getElementById("reflection");
-  const answer = textarea.value.trim();
+  const answer = getTrimmedResponse();
+  const validation = validateResponse();
+  if (!validation.valid) {
+    setSaveStatus(validation.message, { isError: true });
+    updateCharCounter();
+    return;
+  }
   chrome.storage.local.set({ [`q${currentStep + 1}`]: answer }, () => {
     setSaveStatus("Saved ✅");
     if (currentStep < questions.length - 1) {
