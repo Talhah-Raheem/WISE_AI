@@ -298,7 +298,13 @@ function sendJson(res, statusCode, payload, allowedOrigin) {
     'Content-Type': 'application/json',
     'Access-Control-Allow-Origin': allowedOrigin,
     'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-    'Access-Control-Allow-Methods': 'POST, OPTIONS, GET'
+    'Access-Control-Allow-Methods': 'POST, OPTIONS, GET',
+    'X-Content-Type-Options': 'nosniff',
+    'X-Frame-Options': 'DENY',
+    'X-XSS-Protection': '1; mode=block',
+    'Strict-Transport-Security': 'max-age=31536000; includeSubDomains',
+    'Content-Security-Policy': "default-src 'none'",
+    'Referrer-Policy': 'no-referrer'
   });
   res.end(JSON.stringify(payload));
 }
@@ -310,6 +316,10 @@ function handleCors(res, allowedOrigin) {
     'Content-Type, Authorization'
   );
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS, GET');
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-Frame-Options', 'DENY');
+  res.setHeader('X-XSS-Protection', '1; mode=block');
+  res.setHeader('Referrer-Policy', 'no-referrer');
 }
 
 function hashToken(token) {
