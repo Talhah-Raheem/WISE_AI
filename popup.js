@@ -242,6 +242,19 @@ function handleBack() {
   }
 }
 
+async function getClientToken() {
+  return new Promise((resolve, reject) => {
+    chrome.storage.sync.get(['clientToken'], (result) => {
+      if (chrome.runtime.lastError) {
+        reject(chrome.runtime.lastError);
+      } else if (!result.clientToken) {
+        reject(new Error('No client token configured. Please contact your administrator.'));
+      } else {
+        resolve(result.clientToken);
+      }
+    });
+  });
+}
 
 async function handleAI() {
   const feedbackDiv = document.getElementById("feedback");
@@ -263,12 +276,22 @@ async function handleAI() {
     feedbackDiv.className = "feedback loading";
     feedbackDiv.textContent = "Getting AI feedback...";
 
+    // Load token from secure storage
+    let clientToken;
+    try {
+      clientToken = await getClientToken();
+    } catch (error) {
+      feedbackDiv.className = "feedback";
+      feedbackDiv.textContent = error.message;
+      return;
+    }
+
     try {
       const response = await fetch(BACKEND_API_URL, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${EXTENSION_CLIENT_TOKEN}`
+          Authorization: `Bearer ${clientToken}`
         },
         body: JSON.stringify({
           reflections,
