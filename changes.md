@@ -69,4 +69,39 @@ To test the extension after these changes:
 
 ---
 
+### 2026-01-08 - Question Refinement (Phase 2)
+**Branch**: `security/pre-pilot-hardening`
+**Status**: Completed
+
+**Changes**:
+- [x] Updated 4 reflection questions to focus on AI usage ethics
+- [x] Questions now emphasize honest use, learning engagement, and metacognition
+
+**Files Modified**:
+- `popup.js` - Updated questions array (lines 78-83)
+
+**Old Questions (Generic)**:
+1. What is the purpose of this task?
+2. How did you arrive at your solution?
+3. What would you do differently?
+4. What did you learn from this process?
+
+**New Questions (AI-Focused)**:
+1. Describe how you used AI, and whether it was honest and fair
+2. Did AI help you learn, or did it do the work for you?
+3. How did AI impact your experience with this assignment?
+4. What did you learn from working with AI on this task?
+
+**Rationale**:
+Based on mentor feedback (context.txt lines 207-211), questions should promote student-led reflection on AI usage ethics rather than generic task reflection. New questions encourage critical thinking about honest use, engagement, wellbeing, and learning.
+
+**Testing**:
+- [ ] Extension loads successfully
+- [ ] All 4 questions display correctly
+- [ ] Character validation still works (10-1000 chars)
+- [ ] Reflection submission works end-to-end
+- [ ] AI feedback references new question content
+
+---
+
 <!-- Future entries go here with timestamp -->

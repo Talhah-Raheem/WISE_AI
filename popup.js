@@ -76,10 +76,10 @@
 // popup.js
 
 const questions = [
-  "What is the purpose of this task?",
-  "How did you arrive at your solution?",
-  "What would you do differently?",
-  "What did you learn from this process?"
+  "Describe how you used AI, and whether it was honest and fair",
+  "Did AI help you learn, or did it do the work for you?",
+  "How did AI impact your experience with this assignment?",
+  "What did you learn from working with AI on this task?"
 ];
 
 let currentStep = 0;
